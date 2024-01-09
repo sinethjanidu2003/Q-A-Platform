@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting Page</title>
+    <link rel="stylesheet" href="/assest/style.css"/>
+    <style>
+        body{
+            background-image: url("/assest/imgs/bg.jpg");
+        }
+        </style>
+</head>
+<body>
+   
+
+    <div class="header-container">
+        <div class="all-game-pin-area">
+
+            <div class="game-pin-area">
+                <div class="pin-text">
+                    Game PIN : 
+               </div>
+               <div class="pin">
+                    <%= data.room %>
+               </div>
+            </div>
+          
+           <div class="qr-code-area">
+            <img src="https://d3i71xaburhd42.cloudfront.net/609c47e7ba6a29e18befc4858f4757b125134f8c/5-Figure5-1.png"/>
+        </div>
+        </div>
+        
+    </div>
+
+    <div class="show-area">
+        
+        <form action="./user/start" method="POST">
+            <input type="hidden" value="" id="hidden">
+        </form>
+
+    </div>
+
+    <div class="end-block">
+        <div class="block" id="usercount">
+            👤 2
+        </div>
+        <div class="block">
+            🔊
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/assest/js/waiting.js"></script>
+    <script>
+        const socket = io();
+        const showArea  =document.getElementsByClassName("show-area")[0];
+        const userCountArea = document.getElementById("usercount");
+        var loaded = false;
+        const name = '<%= data.name %>';
+        window.onload = async ()=>{
+            const userId = generateRandomId(8);
+            const emoji = await fetch("../emoji")
+                .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! Status: ${response.status}`));
+            socket.emit('joinRoom','<%= data.room %>' , userId,emoji,name);
+            
+        }
+
+
+        socket.on('joined', (userId,name,emoji,countUsers,loggedUsers) => {
+            try {
+                
+
+                if(loaded){
+                    var userContainer = document.createElement('div');
+                    userContainer.id = userId;
+                    userContainer.className = "user-container";
+                    userContainer.innerText = `${name} ${emoji}`;
+                    showArea.appendChild(userContainer);
+                }else{
+                    for(const user in loggedUsers){
+                        var userContainer = document.createElement('div');
+                        userContainer.id = loggedUsers[user].userId;
+                        userContainer.className = "user-container";
+                        userContainer.innerText = `${loggedUsers[user].name} ${loggedUsers[user].emoji}`;
+                        showArea.appendChild(userContainer);
+                        loaded = true;
+                    }
+                }
+            
+                userCountArea.innerHTML = "👤" + countUsers; 
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }   
+        });
+
+        socket.on('start',() => {
+            window.location.href = "./user/start";
+        });
+
+
+        socket.on('left', (userId,countUsers) => {
+            var user = document.getElementById(userId);
+            userCountArea.innerHTML = "👤" + countUsers; 
+            user.remove();
+                console.log('Received message:', userId);
+        });
+
+
+        function generateRandomId(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let randomId = '';
+
+            for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            randomId += characters.charAt(randomIndex);
+            }
+
+            return randomId;
+        }
+
+    </script>
+</body>
+</html>

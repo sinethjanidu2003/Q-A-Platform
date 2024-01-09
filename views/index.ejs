@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShortyQA</title>
+    <link rel="stylesheet" href="assest/style.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dancing+Script">
+
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="name-title">SHORTY Q&A</div>
+        <div class="pin-pad">
+            <form  action="/user/waiting" method="post">
+                <input type="text" placeholder="GAME PIN" name="game_pin" id="gamePin" required/>
+                <input type="text" placeholder="Your Name" name="name" id="name" required/>
+                <button type="submit">Enter</button>
+            </form>
+
+            
+        </div>
+        <div class="end-circle"></div>
+        <div class="top-square"></div>
+        <div class="error-end">
+            ⚠️ We didn't able to find the game PIN ! 
+        </div>
+    </div>
+
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorEnd = document.getElementsByClassName("error-end")[0];
+        const input = document.getElementById("gamePin");
+        if(urlParams.get('error') == "invalid"){
+            errorEnd.style.display = "block";
+            input.style.border = "solid 2px red";
+            setTimeout(function() {
+                errorEnd.style.display = "none";
+                input.style.border = "solid 2px black";
+
+            }, 2500);
+        }
+    </script>
+    
+</body>
+</html>
